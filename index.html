@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Chikuwa's Respository</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <style>
+  * {
+    box-sizing: border-box;
+    font-weight: 300;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  html {
+    background-color: #eee;
+  }
+
+  article {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  footer {
+    padding: 15px;
+  }
+  
+ .header, .description, .releases, .compatible {
+    padding: 20px 30px;
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.16) 0 0 20px 0px;
+  }
+
+  p {
+    padding: 10px 0;
+  }
+
+  h2:not(:first) {
+    padding: 30px 0;
+  }
+
+  h2:first {
+    padding-bottom: 30px;
+  }
+
+  h3 {
+    padding: 15px 0;
+  }
+
+  .description, .releases, .compatible {
+    margin: 15px 15px;
+  }
+
+
+  .header h1 {
+    text-align: center;
+  }
+
+  .release-note {
+    padding-left: 10px;
+  }
+  </style>
+  <script>
+  (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-65039567-7', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <main class="app">
+    <article>
+      <template v-if="package">
+        <div class="header">
+          <h1 style="font-size: 2em;">{{ package.name }}</h1>
+          <p style="text-align: right;">Ver. {{ package.version }}</p>
+        </div>
+
+        <div class="compatible">
+          <h2>Compatible</h2>
+          <p>Compatible with iOS <span v-for="(version, index) in package.ios">{{ version }} {{ index < package.ios.length - 1 ? '/' : null }} </span></p>
+        </div>
+
+        <div class="description">
+          <h2>Description</h2>
+          <p v-for="line in package.description" v-html="line"></p>
+          <h2>Ver. {{ package.version }}</h2>
+          <p v-for="line in package.releases[package.version]" v-html="line"></p>
+        </div>
+
+        <div class="releases">
+          <h2>Releases</h2>
+          <div class="release" v-for="(release, version) in package.releases">
+            <h3 class="version">{{ version }}</h3>
+            <div class="release-note">
+              <p v-for="line in release" v-html="line"></p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </article>
+    <footer>
+      <p style="text-align: center;">&copy; Chikuwa 2018</p>
+    </footer>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.8.3/superagent.min.js"></script>
+  <script>
+  const app = new Vue({
+    el: '.app',
+    data: {
+      packageName: location.hash.replace(/#/, ''),
+      package: null
+    },
+    mounted: function () {
+      superagent.get('./packages/' + this.packageName + '.json').then(function (data) {
+        app.package = data.body;
+        document.title = app.package.name + ' | Chikuwa\'s Respository';
+      }).catch(function (err) {
+        alert(err.message);
+      });
+    }
+  });
+  </script>
+</body>
+</html>
